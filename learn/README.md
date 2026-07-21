@@ -21,9 +21,11 @@
 
 如果你曾看過 SQLite architecture，Turso 也大致是「SQL 先編譯成 bytecode，再由 virtual machine 執行」。SQLite 官方頁面說明了 prepare/step、tokenizer/parser、code generator、bytecode engine、B-tree、pager、OS interface 這些層次；Turso 的對應檔案主要分布在 `bindings/`、`cli/`、`sqlite/parser/`、`core/translate/`、`core/vdbe/`、`core/storage/`、`core/io/`。
 
-## 建議閱讀順序
+## 建議閱讀順序（導讀版）
 
-每一篇都設計成「大約一小時」的源碼閱讀單元。不是要求你一次看完整個檔案，而是每章都會給「檔案 + symbol/區塊 + 預估分鐘」。如果某個檔案很大，例如 `core/vdbe/execute.rs`、`core/storage/btree.rs`、`core/storage/wal.rs`，只看該章指定的 symbol。
+**以下列出的是導讀版**（`00-` 到 `09-`），每一篇設計成「大約一小時」的源碼閱讀單元。不是要求你一次看完整個檔案，而是每章都會給「檔案 + symbol/區塊 + 預估分鐘」。如果某個檔案很大，例如 `core/vdbe/execute.rs`、`core/storage/btree.rs`、`core/storage/wal.rs`，只看該章指定的 symbol。
+
+> 這個「一小時」只適用導讀版。**源碼精讀版（`*-source-code-learn-*.md`）每篇 45–120 分鐘不等**，時間標在各篇開頭；詳見下面的〈兩套教材〉。
 
 1. `00-repo-map.md`
    先認識 repo 的產品形狀、workspace、每個 top-level 目錄與重要檔案。這章不要急著鑽細節，目標是知道「我要找某個概念時該去哪」。
@@ -72,6 +74,55 @@
 Rust 方面，你至少要能讀懂 `enum`、`trait`、`Result<T, E>`、`Arc<T>`、`Mutex/RwLock`、macro 呼叫，以及 `match` 狀態機。你不需要先會寫完整 async runtime，但要知道 Turso core 很多地方不是 `async fn`，而是用 `IOResult` 明確表示「現在要等 I/O」。
 
 資料庫方面，先懂 SQL 基本語法即可。B-tree、WAL、checkpoint、record format 會在後面逐步補。遇到不懂的詞，先回 `00-5-glossary.md`。
+
+## 兩套教材：導讀版與源碼精讀版
+
+`learn/` 有兩個平行系列，用途不同：
+
+**導讀版**（`00-repo-map.md` ~ `09-reading-projects.md`）
+**每章約 1 小時**，給你地圖與必讀清單，需要自己開編輯器追。適合第一輪建立全貌。
+
+**源碼精讀版**（`*-source-code-learn-*.md`）
+把源碼直接貼進文件並標註 `檔案:行號`，逐段解說，**不開編輯器也能讀完**。適合第二輪深入，或當作參考手冊。
+**每篇 45–120 分鐘不等**，實際時間標在各篇開頭（依字數與程式碼比例估算）：
+
+| 時間 | 篇數 | 說明 |
+|---|---:|---|
+| 45–60 分鐘 | 4 | 較短的周邊主題 |
+| 60–75 分鐘 | 10 | 多數篇章 |
+| 75–90 分鐘 | 7 | 內容較密 |
+| **90–120 分鐘** | **6** | **建議分 2 個 session，文中已標示休息點** |
+
+需要兩個 session 的六篇是：`01-3-translate`、`01-4-step-vm`、`02-parser-and-ast`、`03-1-planner`、`03-2-optimizer`、`10-mvcc`。它們的中段有一個 `⏸ Session 1 到此` 標記，列出該停下來確認的重點——**那裡是設計好的休息點，不是進度落後**。
+
+這些篇章刻意不再拆檔，因為它們各自是一條完整的呼叫鏈敘事（例如 `01-4` 從 `Statement::step` 一路到 `normal_step`），拆開會讓主線斷掉。用休息點標記能得到一樣的效果而不犧牲連貫性。
+
+| 主題 | 導讀版 | 源碼精讀版 |
+|---|---|---|
+| SQL 生命週期 | `01-sql-lifecycle.md` | `01-source-code-learn-1-entry-api.md`<br>`01-source-code-learn-2-prepare-parse.md`<br>`01-source-code-learn-3-translate.md`<br>`01-source-code-learn-4-step-vm.md`<br>`01-source-code-learn-5-cursor-storage.md` |
+| Parser 與 AST | `02-parser-and-ast.md` | `02-source-code-learn-parser-and-ast.md` |
+| Compiler / Planner | `03-compiler-planner.md` | `03-source-code-learn-1-planner.md`<br>`03-source-code-learn-2-optimizer.md`<br>`03-source-code-learn-3-emitter-dml-ddl.md`<br>`03-source-code-learn-4-hash-join.md` |
+| VDBE 執行 | `04-vdbe-execution.md` | `04-source-code-learn-1-insn-dispatch.md`<br>`04-source-code-learn-2-cursor-opcodes.md`<br>`04-source-code-learn-3-aggregate-sorter-subprogram.md` |
+| Schema / Value / Record | `05-schema-values-records.md` | `05-source-code-learn-schema-values-records.md` |
+| Function / Expression | `05b-functions-expressions.md` | `05b-source-code-learn-functions-expressions.md` |
+| File format / Page | `06a-file-format-pages.md` | `06a-source-code-learn-file-format-pages.md` |
+| BTree / Pager | `06b-btree-cursor-pager.md` | `06b-source-code-learn-btree-cursor-pager.md`<br>`06c-source-code-learn-btree-balancing.md` |
+| WAL / 交易 | `07a-wal-transactions-checkpoint.md` | `07a-source-code-learn-wal-transactions.md` |
+| IOResult / 重入 | `07b-ioresult-reentry.md` | `07b-source-code-learn-ioresult-reentry.md` |
+| Extension / Sync / 測試 | `08-extensions-sync-testing.md` | `08-source-code-learn-extensions-sync-testing.md` |
+| 綜合追蹤與除錯 | `09-reading-projects.md` | `09-source-code-learn-reading-projects.md` |
+
+**到 `09` 為止是核心 SQL 路徑（主線）。** 以下五篇是進階主題，各自獨立、不必照順序，依興趣挑選即可：
+
+| 主題 | 導讀版 | 源碼精讀版 |
+|---|---|---|
+| MVCC（實驗性） | `docs/agent-guides/mvcc.md` | `10-source-code-learn-mvcc.md` |
+| 增量視圖 / DBSP | — | `11-source-code-learn-incremental-views.md` |
+| PostgreSQL Frontend | — | `12-source-code-learn-postgres-frontend.md` |
+| Sync Engine | `08-extensions-sync-testing.md` | `13-source-code-learn-sync-engine.md` |
+| 確定性模擬器 | `08-extensions-sync-testing.md` | `14-source-code-learn-simulator.md` |
+
+源碼精讀版的三層引用深度：主線函式**完整貼出**並逐段解說；過長的函式**節錄**並用 `// ── 省略：<內容> ──` 標明漏掉什麼；支線只給**座標與一句話**。跨檔案跳轉時會明講「現在離開 X 進到 Y，因為……」。
 
 ## 讀源碼的節奏
 
