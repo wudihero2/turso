@@ -1,0 +1,44 @@
+# 09. MVCC, Sync, Postgres, And Incremental Tasks
+
+這一組是進階系統。先完成核心路徑再進來，否則 MVCC、sync、Postgres frontend 很容易變成零散細節。
+
+- [ ] T296. **MVCC module overview**: read `core/mvcc/mod.rs`, `docs/internals/mvcc/DESIGN.md`; output which problems MVCC is trying to solve.
+- [ ] T297. **RowVersion model**: read `core/mvcc/database/mod.rs`; output fields that represent creation, deletion, owner transaction, and visibility.
+- [ ] T298. **MVCC clocks**: read `core/mvcc/clock.rs`; output logical time responsibilities.
+- [ ] T299. **Transaction state**: read MVCC transaction code in `core/mvcc/database/mod.rs`; output lifecycle from begin to commit/rollback.
+- [ ] T300. **Visibility rules**: read visibility code in `core/mvcc/database/mod.rs`; output committed, uncommitted, own-write, and conflict cases.
+- [ ] T301. **Write conflict model**: read write conflict code and tests in `core/mvcc/database/tests.rs`; output first-writer-wins behavior.
+- [ ] T302. **MVCC cursor**: read `core/mvcc/cursor.rs`; output how versioned rows merge with B-tree cursor reads.
+- [ ] T303. **MVCC yield hooks**: read `core/mvcc/yield_hooks.rs`, `core/mvcc/yield_points.rs`; output where deterministic interleavings are injected.
+- [ ] T304. **MVCC checkpoint state machine**: read `core/mvcc/database/checkpoint_state_machine.rs`; output how version cleanup is phased.
+- [ ] T305. **MVCC logical log model**: read `core/mvcc/persistent_storage/logical_log.rs`; output frame, operation, transaction, checksum, and recovery responsibilities.
+- [ ] T306. **MVCC portable format**: read `docs/internals/mvcc/PORTABLE_FORMAT.md`; output on-disk invariants independent of runtime structs.
+- [ ] T307. **MVCC recovery semantics**: read `docs/internals/mvcc/RECOVERY_SEMANTICS.md`; output what survives crash and how incomplete writes are handled.
+- [ ] T308. **MVCC GC**: read `docs/internals/mvcc/GC.md`; output what can be reclaimed and when.
+- [ ] T309. **MVCC hermitage tests**: read `core/mvcc/database/hermitage_tests.rs`; output which isolation anomalies are covered or still TODO.
+- [ ] T310. **MVCC milestone**: compare one WAL transaction path and one MVCC transaction path; output common concepts and incompatible assumptions.
+- [ ] T311. **Sync engine overview**: read `sync/engine/src/lib.rs`, `learn/13-source-code-learn-sync-engine.md`; output sync layers and data flow.
+- [ ] T312. **DatabaseTape**: read `sync/engine/src/database_tape.rs`; output how local database changes are captured.
+- [ ] T313. **Replay generator**: read `sync/engine/src/database_replay_generator.rs`; output how logical changes turn back into SQL or database operations.
+- [ ] T314. **Sync operations**: read `sync/engine/src/database_sync_operations.rs`; output operation types and state transitions.
+- [ ] T315. **Sync engine API**: read `sync/engine/src/database_sync_engine.rs`; output bootstrap, push, pull, and stats responsibilities.
+- [ ] T316. **Sync engine I/O trait**: read `sync/engine/src/database_sync_engine_io.rs`, `sync/engine/src/io_operations.rs`; output remote/local I/O abstraction.
+- [ ] T317. **Lazy sync storage**: read `sync/engine/src/database_sync_lazy_storage.rs`; output page state tracking and on-demand fetch.
+- [ ] T318. **Sparse I/O**: read `sync/engine/src/sparse_io.rs`; output why partially present databases need sparse operations.
+- [ ] T319. **Client and server proto**: read `sync/engine/src/client_proto.rs`, `sync/engine/src/server_proto.rs`; output protocol boundaries.
+- [ ] T320. **WalSession**: read `sync/engine/src/wal_session.rs`; output how WAL-level synchronization differs from logical replay.
+- [ ] T321. **Sync SDK API**: read `sync/sdk-kit/src/rsapi.rs`; output how app code configures remote URL, auth, encryption, and sync calls.
+- [ ] T322. **Sync milestone**: trace bootstrap then one local write then push; output source path for each phase.
+- [ ] T323. **Postgres parser boundary**: read `postgres/parser/lib.rs`, `postgres/parser/parser.rs`; output why Turso has a separate Postgres parser.
+- [ ] T324. **Postgres AST**: read `postgres/parser/ast.rs`; output how PG SELECT/DDL differs from SQLite AST.
+- [ ] T325. **Postgres translator**: read `postgres/parser/translator.rs`, `postgres/frontend/lib.rs`; output how PG syntax is converted or rejected.
+- [ ] T326. **Postgres aliases and functions**: read `postgres/frontend/aliases.rs`, `postgres/frontend/functions.rs`; output how pg_catalog compatibility is simulated.
+- [ ] T327. **Postgres session**: read `postgres/frontend/session.rs`; output how PG connections open Turso databases.
+- [ ] T328. **Postgres server**: read `postgres/server/lib.rs`; output simple query, extended query, parameter binding, and response encoding.
+- [ ] T329. **Postgres conformance**: read `postgres/COMPAT.md`, `postgres/tests/integration/mod.rs`; output known compatibility boundaries.
+- [ ] T330. **Postgres milestone**: trace a PG client query through parse, translate, core execution, and pgwire response.
+- [ ] T331. **Incremental view overview**: read `core/incremental/mod.rs`, `learn/11-source-code-learn-incremental-views.md`; output what DBSP-like incremental computation adds.
+- [ ] T332. **Incremental operators**: read `core/incremental/operator.rs`, `core/incremental/filter_operator.rs`, `core/incremental/project_operator.rs`; output operator input/output contract.
+- [ ] T333. **Incremental joins and aggregates**: read `core/incremental/join_operator.rs`, `core/incremental/aggregate_operator.rs`; output why deltas and weights are needed.
+- [ ] T334. **Incremental compiler**: read `core/incremental/compiler.rs`, `core/incremental/expr_compiler.rs`; output how SQL/view definitions become operator graphs.
+- [ ] T335. **Advanced systems milestone**: explain when you would choose WAL, MVCC, sync logical replay, or incremental view maintenance for a feature.
