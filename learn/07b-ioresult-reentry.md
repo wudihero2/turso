@@ -188,7 +188,7 @@ memory_yield.rs
 追 source：
 
 ```bash
-rg -n "pub enum IOResult|pub enum IOCompletions|macro_rules! return_if_io" core/types.rs
+rg -n "pub enum IOResult|pub struct IOCompletions|macro_rules! return_if_io" core/types.rs
 rg -n "macro_rules! io_yield_one|pub trait IOExt" core/util.rs
 rg -n "pub struct Completion|pub struct CompletionGroup" core/io/completions.rs
 rg -n "state.io_completions|StepResult::IO|StepResult::Yield" core/vdbe/mod.rs
@@ -202,4 +202,3 @@ rg -n "pub enum OpColumnState|pub enum OpTransactionState" core/vdbe/execute.rs
 3. state enum 應該保存「已完成的 mutation」還是「下一次要恢復的進度」？
 4. `CompletionGroup` 解決什麼問題？
 5. 為什麼 testing backend 要故意製造更多 yield point？
-

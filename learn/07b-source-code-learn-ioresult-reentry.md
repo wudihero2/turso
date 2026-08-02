@@ -37,7 +37,7 @@ Rust 的 `async fn` 由編譯器自動產生狀態機，保存區域變數，看
 
 ## IOResult：只有兩個變體
 
-**`core/types.rs:3265-3268`** — 完整貼出：
+**`core/types.rs:3461-3464`** — 完整貼出：
 
 ```rust
 pub enum IOResult<T> {
@@ -46,7 +46,7 @@ pub enum IOResult<T> {
 }
 ```
 
-**`core/types.rs:3270-3291`** — 完整貼出方法：
+**`core/types.rs:3466-3486`** — 完整貼出方法：
 
 ```rust
 impl<T> IOResult<T> {
@@ -81,21 +81,21 @@ impl<T> IOResult<T> {
 
 把 `IOResult<Page>` 轉成 `IOResult<()>`，丟掉不需要的值但保留 I/O 語義。
 
-**`core/types.rs:3184-3186`** — `IOCompletions`：
+**`core/types.rs:3390-3393`** — `IOCompletions`：
 
 ```rust
-pub enum IOCompletions {
-    Single(Completion),
-}
+#[derive(Debug)]
+#[must_use]
+pub struct IOCompletions(pub Completion);
 ```
 
-目前只有一個變體。這暗示曾經（或將來）有 `Multiple` 之類的變體；現在多個 I/O 的批次處理改用 `CompletionGroup`（見下面）包成單一 `Completion`。
+`IOCompletions` 現在是包住一個 `Completion` 的 tuple struct，不是 enum。多個 I/O 先由 `CompletionGroup`（見下面）合成一個 group completion，再放進這個 wrapper；呼叫者可透過 wrapper 的 `wait`、`wait_async`、`finished`、`abort` 與 `get_error` 操作它。
 
 ---
 
 ## return_if_io!：往上冒泡的機制
 
-**`core/types.rs:3295-3306`** — 完整貼出：
+**`core/types.rs:3491-3502`** — 完整貼出：
 
 ```rust
 macro_rules! return_if_io {
@@ -147,7 +147,7 @@ macro_rules! return_if_io {
 ```rust
 macro_rules! io_yield_one {
     ($c:expr) => {
-        return Ok(IOResult::IO(IOCompletions::Single($c)));
+        return Ok(IOResult::IO(IOCompletions($c)));
     };
 }
 ```
@@ -529,7 +529,7 @@ rg -n "\.block\(" core/ | head -20
 追 source：
 
 ```bash
-rg -n "pub enum IOResult|pub enum IOCompletions|macro_rules! return_if_io" core/types.rs
+rg -n "pub enum IOResult|pub struct IOCompletions|macro_rules! return_if_io" core/types.rs
 rg -n "macro_rules! io_yield_one|pub trait IOExt" core/util.rs
 rg -n "pub struct Completion|pub struct CompletionGroup" core/io/completions.rs
 rg -n "macro_rules! return_if_io" core/vdbe/execute.rs

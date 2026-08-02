@@ -351,7 +351,7 @@ impl StatementOrigin {
 
 ### 執行與 I/O 傳遞
 
-**`core/vdbe/execute.rs:4907-4935`** — 完整貼出：
+**`core/vdbe/execute.rs:4927-4953`** — 完整貼出：
 
 ```rust
             OpProgramState::Step {
@@ -371,9 +371,9 @@ impl StatementOrigin {
                         Ok(step_result) => match step_result {
                             StepResult::Done => break,
                             StepResult::IO | StepResult::Yield => {
-                                let io = statement.take_io_completions().unwrap_or_else(|| {
-                                    IOCompletions::Single(Completion::new_yield())
-                                });
+                                let io = statement
+                                    .take_io_completions()
+                                    .unwrap_or_else(|| IOCompletions(Completion::new_yield()));
                                 *state.active_op_state.program() = OpProgramState::Step {
                                     is_trigger,
                                     statement,
@@ -406,7 +406,7 @@ impl StatementOrigin {
 
 **子程式的執行狀態被完整保存在父程式的狀態機裡。** 這是 `07b-source-code-learn-ioresult-reentry.md` 講的「巢狀的可中斷操作需要巢狀的狀態儲存」的極致例子——這裡巢狀的不是一個小狀態，而是**一整個 VM 的執行狀態**。
 
-那個 `unwrap_or_else(|| IOCompletions::Single(Completion::new_yield()))` 處理 `Yield` 的情況：`Yield` 沒有真正的 completion，所以造一個空的 yield completion。呼應 `07b` 講的 `Completion.inner: Option`（`None` 代表純 yield，不配置記憶體）。
+那個 `unwrap_or_else(|| IOCompletions(Completion::new_yield()))` 處理 `Yield` 的情況：`Yield` 沒有真正的 completion，所以造一個空的 yield completion。呼應 `07b` 講的 `Completion.inner: Option`（`None` 代表純 yield，不配置記憶體）。
 
 `subprogram_aborted` 那段註解也值得注意：
 

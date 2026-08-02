@@ -158,7 +158,7 @@ core/schema.rs|pub struct Schema
 core/schema.rs|SCHEMA_TABLE_NAME
 core/function.rs|pub enum Func
 core/types.rs|pub enum Value
-core/types.rs|pub enum IOCompletions
+core/types.rs|pub struct IOCompletions
 core/util.rs|macro_rules! io_yield_one
 core/util.rs|pub trait IOExt
 core/storage/sqlite3_ondisk.rs|pub enum PageType

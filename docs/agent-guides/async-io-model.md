@@ -9,9 +9,7 @@ Turso uses cooperative yielding with explicit state machines instead of Rust asy
 ## Core Types
 
 ```rust
-pub enum IOCompletions {
-    Single(Completion),
-}
+pub struct IOCompletions(pub Completion);
 
 #[must_use]
 pub enum IOResult<T> {
@@ -68,7 +66,7 @@ let result = return_if_io!(some_io_operation());
 ### `io_yield_one!`
 Yields a single completion:
 ```rust
-io_yield_one!(completion);  // Returns Ok(IOResult::IO(Single(completion)))
+io_yield_one!(completion);  // Returns Ok(IOResult::IO(IOCompletions(completion)))
 ```
 
 ## State Machine Pattern

@@ -282,7 +282,7 @@ fn op_column_fetch(
 
 現在看第 4 篇一直提到、卻還沒展開的機制。
 
-**`core/types.rs:3265-3268`** — 完整貼出：
+**`core/types.rs:3461-3464`** — 完整貼出：
 
 ```rust
 pub enum IOResult<T> {
@@ -293,7 +293,7 @@ pub enum IOResult<T> {
 
 只有兩個變體：完成了（帶值），或者需要等 I/O（帶 completion 把手）。
 
-**`core/types.rs:3295-3306`** — 完整貼出：
+**`core/types.rs:3491-3502`** — 完整貼出：
 
 ```rust
 macro_rules! return_if_io {
